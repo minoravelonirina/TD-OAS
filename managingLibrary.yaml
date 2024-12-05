@@ -1,0 +1,251 @@
+openapi: 3.0.3
+info:
+  title: Library Management API
+  description: API for managing books and authors in a library system.
+  version: 1.0.0
+
+paths:
+  /books:
+    get:
+      summary: Get a list of books
+      description: Retrieves a list of books with optional filters by name and release date range.
+      operationId: getBooks
+      tags:
+        - Books
+      parameters:
+        - name: bookName
+          in: query
+          description: Filter by book name.
+          required: false
+          schema:
+            type: string
+        - name: startDate
+          in: query
+          description: Start date for filtering by release date.
+          required: false
+          schema:
+            type: string
+            format: date
+        - name: endDate
+          in: query
+          description: End date for filtering by release date.
+          required: false
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: List of books.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Book'
+        '400':
+          description: Invalid query parameters.
+    post:
+      summary: Add a new book
+      description: Creates a new book record in the library.
+      operationId: createBook
+      tags:
+        - Books
+      requestBody:
+        description: Book object to be created.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewBook'
+      responses:
+        '201':
+          description: Book successfully created.
+        '400':
+          description: Invalid book data.
+    put:
+      summary: Update a book (idempotent)
+      description: Updates an existing book. This is an idempotent request.
+      operationId: updateBook
+      tags:
+        - Books
+      requestBody:
+        description: Book object to be updated.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Book'
+      responses:
+        '200':
+          description: Book successfully updated.
+        '404':
+          description: Book not found.
+    delete:
+      summary: Delete a book
+      description: Deletes a book by its ID.
+      operationId: deleteBook
+      tags:
+        - Books
+      parameters:
+        - name: bookId
+          in: query
+          description: ID of the book to delete.
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Book successfully deleted.
+        '404':
+          description: Book not found.
+
+  /authors:
+    get:
+      summary: Get a list of authors
+      description: Retrieves a list of authors with optional filters by name.
+      operationId: getAuthors
+      tags:
+        - Authors
+      parameters:
+        - name: authorName
+          in: query
+          description: Filter by author name.
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of authors.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Author'
+        '400':
+          description: Invalid query parameters.
+    post:
+      summary: Add a new author
+      description: Creates a new author record in the library.
+      operationId: createAuthor
+      tags:
+        - Authors
+      requestBody:
+        description: Author object to be created.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewAuthor'
+      responses:
+        '201':
+          description: Author successfully created.
+        '400':
+          description: Invalid author data.
+    put:
+      summary: Update an author (idempotent)
+      description: Updates an existing author. This is an idempotent request.
+      operationId: updateAuthor
+      tags:
+        - Authors
+      requestBody:
+        description: Author object to be updated.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Author'
+      responses:
+        '200':
+          description: Author successfully updated.
+        '404':
+          description: Author not found.
+    delete:
+      summary: Delete an author
+      description: Deletes an author by their ID.
+      operationId: deleteAuthor
+      tags:
+        - Authors
+      parameters:
+        - name: authorId
+          in: query
+          description: ID of the author to delete.
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: Author successfully deleted.
+        '404':
+          description: Author not found.
+
+components:
+  schemas:
+    Book:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        bookName:
+          type: string
+        author:
+          type: string
+          description: The name of the author.
+        pageNumbers:
+          type: integer
+        topic:
+          type: string
+          enum:
+            - ROMANCE
+            - COMEDY
+            - OTHER
+        releaseDate:
+          type: string
+          format: date
+    NewBook:
+      type: object
+      required:
+        - bookName
+        - author
+      properties:
+        bookName:
+          type: string
+        author:
+          type: string
+        pageNumbers:
+          type: integer
+        topic:
+          type: string
+          enum:
+            - ROMANCE
+            - COMEDY
+            - OTHER
+        releaseDate:
+          type: string
+          format: date
+    Author:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          type: string
+        sex:
+          type: string
+          enum:
+            - M
+            - F
+    NewAuthor:
+      type: object
+      required:
+        - name
+      properties:
+        name:
+          type: string
+        sex:
+          type: string
+          enum:
+            - M
+            - F
